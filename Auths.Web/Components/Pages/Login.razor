@@ -1,0 +1,85 @@
+﻿@page "/login"
+
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.Identity.Web
+@inject ITokenAcquisition Token
+
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject IHttpContextAccessor HttpContextAccessor
+
+<PageTitle>Azure EntraID</PageTitle>
+
+<h3>Azure EntraID Authentication</h3>
+
+<button class="btn btn-primary" @onclick="EntraIdLogin">Azure EntraID Login</button>
+<button class="btn btn-primary" @onclick="EntraIdLogout">Azure EntraID Logout</button>
+
+<CascadingAuthenticationState>
+    <AuthorizeView>
+        <Authorized>
+            <button class="btn btn-primary" @onclick="GetAccessToken">GetAccessToken</button>
+            <br />
+            <b>AcessToken:</b> @accessToken
+
+            <br /><br /><br /><br />
+
+            <h3>User Claims</h3>
+
+            @if (claims.Any())
+            {
+                <ul>
+                    @foreach (var claim in claims)
+                    {
+                        <li><b>@claim.Type:</b> @claim.Value</li>
+                    }
+                </ul>
+            }
+
+        </Authorized>
+        @* <NotAuthorized>
+            <a href="signin-oidc">Login</a>
+        </NotAuthorized> *@
+    </AuthorizeView>
+</CascadingAuthenticationState>
+
+
+
+@code {
+    private IEnumerable<Claim> claims = [];
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthState { get; set; }
+    private string accessToken = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        // var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        // claims = authState.User.Claims;
+
+        if (AuthState == null)
+        {
+            return;
+        }
+
+        var authState = await AuthState;
+        claims = authState.User.Claims;
+    }
+
+    private void EntraIdLogin()
+    {
+        Navigation.NavigateTo("azure-login", forceLoad: true);
+    }
+
+    private void EntraIdLogout()
+    {
+        Navigation.NavigateTo("azure-logout", forceLoad: true);
+    }
+
+    private async Task GetAccessToken(MouseEventArgs e)
+    {
+        accessToken = await Token.GetAccessTokenForUserAsync([""]);
+    }
+}

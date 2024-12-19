@@ -1,0 +1,37 @@
+﻿@page "/azure-logout"
+
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using Microsoft.AspNetCore.Authentication.OpenIdConnect
+@inject NavigationManager NavigationManager
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IAuthenticationService AuthenticationService
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var httpContext = HttpContextAccessor.HttpContext;
+        if (httpContext is not null)
+        {
+            // Sign out globally from the identity provider
+            await AuthenticationService.SignOutAsync(
+                httpContext,
+                OpenIdConnectDefaults.AuthenticationScheme,
+                new AuthenticationProperties
+                    {
+                        RedirectUri = "/" // Redirect to the home page after logout
+                    }
+            );
+
+            // Sign out locally
+            await AuthenticationService.SignOutAsync(
+                httpContext,
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new AuthenticationProperties
+                    {
+                        RedirectUri = "/"
+                    }
+            );
+        }
+    }
+}

@@ -1,0 +1,25 @@
+﻿@page "/azure-login"
+
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.OpenIdConnect
+@inject NavigationManager NavigationManager
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IAuthenticationService AuthenticationService
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var httpContext = HttpContextAccessor.HttpContext;
+        if (httpContext is not null)
+        {
+            await AuthenticationService.ChallengeAsync(
+                httpContext,
+                OpenIdConnectDefaults.AuthenticationScheme,
+                new AuthenticationProperties
+                    {
+                        RedirectUri = "login"
+                    }
+            );
+        }
+    }
+}
