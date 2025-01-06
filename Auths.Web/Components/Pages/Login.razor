@@ -7,14 +7,18 @@
 
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
-@inject IHttpContextAccessor HttpContextAccessor
 
 <PageTitle>Azure EntraID</PageTitle>
 
 <h3>Azure EntraID Authentication</h3>
 
-<button class="btn btn-primary" @onclick="EntraIdLogin">Azure EntraID Login</button>
-<button class="btn btn-primary" @onclick="EntraIdLogout">Azure EntraID Logout</button>
+@* <button class="btn btn-primary" @onclick="EntraIdLogin">Azure EntraID Login</button>
+<button class="btn btn-primary" @onclick="EntraIdLogout">Azure EntraID Logout</button> *@
+
+<a class="btn btn-primary" href="MicrosoftIdentity/Account/SignIn">Login</a>
+<a class="btn btn-primary" href="MicrosoftIdentity/Account/SignOut">Logout</a>
+@* <a class="btn btn-primary" href="MicrosoftIdentity/Account/SignOut?post_logout_redirect_uri=https://localhost:7259/">Logout</a> *@
+
 
 <CascadingAuthenticationState>
     <AuthorizeView>
@@ -38,9 +42,6 @@
             }
 
         </Authorized>
-        @* <NotAuthorized>
-            <a href="signin-oidc">Login</a>
-        </NotAuthorized> *@
     </AuthorizeView>
 </CascadingAuthenticationState>
 
@@ -68,15 +69,21 @@
         claims = authState.User.Claims;
     }
 
-    private void EntraIdLogin()
+    /*private void EntraIdLogin()
     {
-        Navigation.NavigateTo("azure-login", forceLoad: true);
+        //use this page if you dont add the service: builder.Services.AddControllers().AddMicrosoftIdentityUI();
+        //Navigation.NavigateTo("azure-login", forceLoad: true);
+
+        Navigation.NavigateTo("MicrosoftIdentity/Account/SignIn", forceLoad: true);
     }
 
     private void EntraIdLogout()
     {
-        Navigation.NavigateTo("azure-logout", forceLoad: true);
-    }
+        //use this page if you dont add the service: builder.Services.AddControllers().AddMicrosoftIdentityUI();
+        //Navigation.NavigateTo("azure-logout", forceLoad: true);
+
+        Navigation.NavigateTo("MicrosoftIdentity/Account/SignOut", forceLoad: true);
+    }*/
 
     private async Task GetAccessToken(MouseEventArgs e)
     {

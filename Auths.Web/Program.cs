@@ -16,7 +16,7 @@ builder.Services.AddRazorComponents()
 /*builder.Services.AddServerSideBlazor()
                 .AddMicrosoftIdentityConsentHandler();*/
 
-//builder.Services.AddOutputCache();
+builder.Services.AddOutputCache();
 
 
 /*var tenantId = builder.Configuration.GetValue<string>("AzureAd:TenantId")!;
@@ -39,12 +39,14 @@ builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration)
     .EnableTokenAcquisitionToCallDownstreamApi()
     .AddInMemoryTokenCaches();
 
-builder.Services.AddAuthorization();
+builder.Services.AddControllers().AddMicrosoftIdentityUI();
+
+//builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddControllersWithViews()
-        .AddMicrosoftIdentityUI();
+
+
 
 
 builder.Services.AddHttpClient<WeatherApiClient>(client =>
@@ -65,18 +67,20 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();
 app.UseAntiforgery();
+
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-//app.UseOutputCache();
-
-app.MapStaticAssets();
+app.UseOutputCache();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.MapDefaultEndpoints();
+
+app.MapControllers();
 
 app.Run();
