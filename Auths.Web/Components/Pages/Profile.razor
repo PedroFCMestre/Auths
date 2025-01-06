@@ -1,0 +1,41 @@
+﻿@page "/profile"
+@using Microsoft.AspNetCore.Authorization
+
+@rendermode InteractiveServer
+
+@attribute [Authorize]
+
+@inject Microsoft.Graph.GraphServiceClient GraphClient
+
+
+
+<PageTitle>Profile</PageTitle>
+
+<h3>Azure EntraID profile</h3>
+
+@if (userProfile != null)
+{
+    <p><strong>Name:</strong> @userProfile.DisplayName</p>
+    <p><strong>Email:</strong> @userProfile.Mail </p>
+    <p><strong>Job:</strong> @userProfile.JobTitle </p>
+}
+else
+{
+    <p>Not authenticated</p>
+}
+
+@code {
+    private Microsoft.Graph.User? userProfile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            userProfile = await GraphClient.Me.Request().GetAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching user profile: {ex.Message}");
+        }
+    }
+}

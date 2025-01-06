@@ -13,41 +13,22 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 //.AddMicrosoftIdentityConsentHandler();
 
-/*builder.Services.AddServerSideBlazor()
-                .AddMicrosoftIdentityConsentHandler();*/
-
 builder.Services.AddOutputCache();
 
 
-/*var tenantId = builder.Configuration.GetValue<string>("AzureAd:TenantId")!;
-var clientSecret = builder.Configuration.GetValue<string>("AzureAd:ClientSecret")!; //stored in user-secrets*/
-
-/*builder.Services.Configure<MicrosoftIdentityOptions>(
-    OpenIdConnectDefaults.AuthenticationScheme,
-    options =>
-    {
-        options.ClientSecret = clientSecret;
-    });*/
-
-
-
-
-/*builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));*/
-
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration)
-    .EnableTokenAcquisitionToCallDownstreamApi()
+    .EnableTokenAcquisitionToCallDownstreamApi(["User.Read"])
+    .AddMicrosoftGraph() //to get the authenticated user profile data        
     .AddInMemoryTokenCaches();
-
-builder.Services.AddControllers().AddMicrosoftIdentityUI();
+//.AddDistributedTokenCaches();
 
 //builder.Services.AddAuthorization();
+
+builder.Services.AddControllers()
+    .AddMicrosoftIdentityUI();
+
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddHttpContextAccessor();
-
-
-
-
 
 builder.Services.AddHttpClient<WeatherApiClient>(client =>
     {
@@ -69,7 +50,6 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
-
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,12 +1,14 @@
 ﻿@page "/login"
-
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.Identity.Client
 @using Microsoft.Identity.Web
-@inject ITokenAcquisition Token
 
 @rendermode InteractiveServer
+
+@inject ITokenAcquisition Token
 @inject NavigationManager Navigation
+@inject Microsoft.Graph.GraphServiceClient GraphClient
 
 <PageTitle>Azure EntraID</PageTitle>
 
@@ -17,20 +19,28 @@
 
 <a class="btn btn-primary" href="MicrosoftIdentity/Account/SignIn">Login</a>
 <a class="btn btn-primary" href="MicrosoftIdentity/Account/SignOut">Logout</a>
-@* <a class="btn btn-primary" href="MicrosoftIdentity/Account/SignOut?post_logout_redirect_uri=https://localhost:7259/">Logout</a> *@
-
 
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
-            <button class="btn btn-primary" @onclick="GetAccessToken">GetAccessToken</button>
-            <br />
+
+            <br /><br /><br />
+            
+            <h3>Profile</h3>
+            @if (userProfile != null)
+            {
+                <p><strong>Name:</strong> @userProfile.DisplayName</p>
+                <p><strong>Email:</strong> @userProfile.Mail </p>
+                <p><strong>Job:</strong> @userProfile.JobTitle </p>
+            }
+
+            <br /><br /><br />
+
             <b>AcessToken:</b> @accessToken
 
-            <br /><br /><br /><br />
+            <br /><br /><br />
 
             <h3>User Claims</h3>
-
             @if (claims.Any())
             {
                 <ul>
@@ -49,10 +59,11 @@
 
 @code {
     private IEnumerable<Claim> claims = [];
+    private string accessToken = "";
+    private Microsoft.Graph.User? userProfile;
 
     [CascadingParameter]
     private Task<AuthenticationState>? AuthState { get; set; }
-    private string accessToken = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,7 +77,26 @@
         }
 
         var authState = await AuthState;
-        claims = authState.User.Claims;
+        var user = authState.User;
+        claims = user.Claims;
+
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            try
+            {
+                accessToken = await Token.GetAccessTokenForUserAsync(["User.Read"]);
+                userProfile = await GraphClient.Me.Request().GetAsync();
+            }
+            catch (MsalUiRequiredException)
+            {
+                Navigation.NavigateTo("MicrosoftIdentity/Account/SignIn", forceLoad: true);
+            }
+            catch (MicrosoftIdentityWebChallengeUserException)
+            {
+                Navigation.NavigateTo("MicrosoftIdentity/Account/SignIn", forceLoad: true);
+            }
+        }
     }
 
     /*private void EntraIdLogin()
@@ -84,9 +114,4 @@
 
         Navigation.NavigateTo("MicrosoftIdentity/Account/SignOut", forceLoad: true);
     }*/
-
-    private async Task GetAccessToken(MouseEventArgs e)
-    {
-        accessToken = await Token.GetAccessTokenForUserAsync([""]);
-    }
 }
