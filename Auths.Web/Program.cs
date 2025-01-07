@@ -13,7 +13,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 //.AddMicrosoftIdentityConsentHandler();
 
-builder.Services.AddOutputCache();
+//builder.Services.AddOutputCache();
 
 
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration)
@@ -54,7 +54,7 @@ app.UseAntiforgery();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseOutputCache();
+//app.UseOutputCache();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

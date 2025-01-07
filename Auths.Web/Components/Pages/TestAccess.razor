@@ -1,0 +1,18 @@
+﻿@page "/testaccess"
+
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<h3>Test Page Access</h3>
+
+<br/>
+
+<p>This page is only to test what happens if you access it without authentication.</p>
+<ul>
+    <li>If you are authenticated you should be able to access this page and see this text.</li>
+    <li>If you are not authenticated you should be redirected to microsoft login page.</li>
+</ul>
+
+@code {
+
+}

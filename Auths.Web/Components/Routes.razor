@@ -1,6 +1,39 @@
-﻿<Router AppAssembly="typeof(Program).Assembly">
+﻿@using Auths.Web.Components.Layout
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject NavigationManager Navigation
+
+@* <Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
+</Router> *@
+
+<Router AppAssembly="typeof(Program).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+            <NotAuthorized>
+                @if (context.User.Identity?.IsAuthenticated == false)
+                {
+                    Navigation.NavigateTo("MicrosoftIdentity/Account/SignIn", forceLoad: true);
+                }
+                else
+                {
+                    <h1>Access Denied</h1>
+                    <p>You are authenticated but do not have permission to view this page.</p>
+                }
+            </NotAuthorized>
+            <Authorizing>
+                <h1>Authenticating...</h1>
+                <p>This message is displayed while authentication is in progress.</p>
+            </Authorizing>
+        </AuthorizeRouteView>
+    </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <h1>Page Not Found</h1>
+            <p>We couldn't find the page you were looking for.</p>
+        </LayoutView>
+    </NotFound>
 </Router>

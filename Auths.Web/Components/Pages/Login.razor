@@ -8,7 +8,6 @@
 
 @inject ITokenAcquisition Token
 @inject NavigationManager Navigation
-@inject Microsoft.Graph.GraphServiceClient GraphClient
 
 <PageTitle>Azure EntraID</PageTitle>
 
@@ -23,16 +22,6 @@
 <CascadingAuthenticationState>
     <AuthorizeView>
         <Authorized>
-
-            <br /><br /><br />
-            
-            <h3>Profile</h3>
-            @if (userProfile != null)
-            {
-                <p><strong>Name:</strong> @userProfile.DisplayName</p>
-                <p><strong>Email:</strong> @userProfile.Mail </p>
-                <p><strong>Job:</strong> @userProfile.JobTitle </p>
-            }
 
             <br /><br /><br />
 
@@ -60,7 +49,6 @@
 @code {
     private IEnumerable<Claim> claims = [];
     private string accessToken = "";
-    private Microsoft.Graph.User? userProfile;
 
     [CascadingParameter]
     private Task<AuthenticationState>? AuthState { get; set; }
@@ -80,13 +68,11 @@
         var user = authState.User;
         claims = user.Claims;
 
-
         if (user.Identity?.IsAuthenticated == true)
         {
             try
             {
                 accessToken = await Token.GetAccessTokenForUserAsync(["User.Read"]);
-                userProfile = await GraphClient.Me.Request().GetAsync();
             }
             catch (MsalUiRequiredException)
             {

@@ -1,41 +1,68 @@
 ﻿@page "/profile"
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.Identity.Client
+@using Microsoft.Identity.Web
 
 @rendermode InteractiveServer
 
 @attribute [Authorize]
 
 @inject Microsoft.Graph.GraphServiceClient GraphClient
-
+@inject NavigationManager Navigation
 
 
 <PageTitle>Profile</PageTitle>
 
-<h3>Azure EntraID profile</h3>
+<CascadingAuthenticationState>
+    <AuthorizeView>
+        <Authorized>
 
-@if (userProfile != null)
-{
-    <p><strong>Name:</strong> @userProfile.DisplayName</p>
-    <p><strong>Email:</strong> @userProfile.Mail </p>
-    <p><strong>Job:</strong> @userProfile.JobTitle </p>
-}
-else
-{
-    <p>Not authenticated</p>
-}
+            <h3>Azure EntraID profile</h3>
+
+            <br /><br />
+
+            @if (userProfile != null)
+            {
+                <p><strong>Name:</strong> @userProfile.DisplayName</p>
+                <p><strong>Email:</strong> @userProfile.Mail </p>
+                <p><strong>Job:</strong> @userProfile.JobTitle </p>
+            }
+
+        </Authorized>
+    </AuthorizeView>
+</CascadingAuthenticationState>
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthState { get; set; }
+
     private Microsoft.Graph.User? userProfile;
 
     protected override async Task OnInitializedAsync()
     {
-        try
+        if (AuthState == null)
         {
-            userProfile = await GraphClient.Me.Request().GetAsync();
+            return;
         }
-        catch (Exception ex)
+
+        var authState = await AuthState;
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
         {
-            Console.WriteLine($"Error fetching user profile: {ex.Message}");
+            try
+            {
+                userProfile = await GraphClient.Me.Request().GetAsync();
+            }
+            catch (MsalUiRequiredException)
+            {
+                Navigation.NavigateTo("MicrosoftIdentity/Account/SignIn", forceLoad: true);
+            }
+            catch (MicrosoftIdentityWebChallengeUserException)
+            {
+                Navigation.NavigateTo("MicrosoftIdentity/Account/SignIn", forceLoad: true);
+            }
         }
     }
 }
