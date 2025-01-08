@@ -1,7 +1,12 @@
+using Microsoft.Identity.Web;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();
+
+//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddMicrosoftIdentityWebApi(builder.Configuration);
+builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration);
 
 // Add services to the container.
 builder.Services.AddProblemDetails();
@@ -19,6 +24,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseAuthentication();
+app.UseAuthorization();
+
+
 string[] summaries = ["Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"];
 
 app.MapGet("/weatherforecast", () =>
@@ -33,8 +42,9 @@ app.MapGet("/weatherforecast", () =>
         .ToArray();
     return forecast;
 })
+.WithName("GetWeatherForecast")
 .RequireAuthorization()
-.WithName("GetWeatherForecast");
+.RequireScope(builder.Configuration.GetSection("AzureAD:Scopes").Value!);
 
 app.MapDefaultEndpoints();
 

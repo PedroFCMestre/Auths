@@ -9,11 +9,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+//builder.Services.AddRazorComponents()
+//    .AddInteractiveServerComponents();
 //.AddMicrosoftIdentityConsentHandler();
 
-// We need this so EntraID redirects back to the app after logout
+builder.Services.AddServerSideBlazor()
+    .AddInteractiveServerComponents();
+
+// We need this so Microsoft EntraID redirects back to the app after logout
 builder.Services.AddRazorPages();
 
 //builder.Services.AddOutputCache();
