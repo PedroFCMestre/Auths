@@ -13,6 +13,9 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 //.AddMicrosoftIdentityConsentHandler();
 
+// We need this so EntraID redirects back to the app after logout
+builder.Services.AddRazorPages();
+
 //builder.Services.AddOutputCache();
 
 
