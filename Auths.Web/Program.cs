@@ -1,5 +1,6 @@
 using Auths.Web;
 using Auths.Web.Components;
+using Microsoft.Graph.ExternalConnectors;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 
@@ -23,10 +24,18 @@ builder.Services.AddRazorPages();
 
 
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration)
-    .EnableTokenAcquisitionToCallDownstreamApi(["User.Read"])
+    .EnableTokenAcquisitionToCallDownstreamApi()
+    //.EnableTokenAcquisitionToCallDownstreamApi(builder.Configuration.GetSection("AzureAd:Scopes").Get<IEnumerable<string>>())
+    .AddDownstreamApi("AuthsApi", options =>
+    {
+        options.BaseUrl = new("https+http://apiservice");
+        options.Scopes = builder.Configuration.GetSection("AzureAd:Scopes").Get<IEnumerable<string>>();
+    })
     .AddMicrosoftGraph() //to get the authenticated user profile data        
     .AddInMemoryTokenCaches();
 //.AddDistributedTokenCaches();
+
+
 
 //builder.Services.AddAuthorization();
 
@@ -36,12 +45,16 @@ builder.Services.AddControllers()
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddHttpClient<WeatherApiClient>(client =>
-    {
-        // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
-        // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-        client.BaseAddress = new("https+http://apiservice");
-    });
+//builder.Services.AddTransient<MicrosoftIdentityAppAuthenticationMessageHandler>();
+
+//builder.Services.AddHttpClient<WeatherApiClient>(client =>
+//    {
+//        client.BaseAddress = new("https+http://apiservice");
+
+//    })
+//    .AddHttpMessageHandler<MicrosoftIdentityAppAuthenticationMessageHandler>();
+
+builder.Services.AddScoped<WeatherApiClient>();
 
 var app = builder.Build();
 

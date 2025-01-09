@@ -7,6 +7,15 @@ builder.AddServiceDefaults();
 
 //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddMicrosoftIdentityWebApi(builder.Configuration);
 builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration);
+builder.Services.AddAuthorization();
+
+/*
+builder.Services.AddAuthorization(config =>
+{
+    config.AddPolicy("AuthZPolicy", policyBuilder =>
+        policyBuilder.Requirements.Add(new ScopeAuthorizationRequirement() { RequiredScopesConfigurationKey = $"AzureAd:Scopes" }));
+});
+*/
 
 // Add services to the container.
 builder.Services.AddProblemDetails();
